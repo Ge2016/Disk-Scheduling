@@ -1,0 +1,143 @@
+/* The disk scheduling class holds FCFS, SCAN, CSCAN, LOOK, CLOOK, and SSTF algorithm functions.
+ * This class implements the 5 scheduling algorithms. 
+ */
+public class Disk {
+   /* First-Come-First-Serve Scheduling 
+    * The request are addressed in the order they arrive in the disk queue.
+    */
+   public int FCFS(int diskSize, int startPosition, int[] request) {
+       int count = 0;
+       for ( int i = 0; i < request.length; i++) {
+           if (startPosition > request[i]) 
+               count += startPosition - request[i];
+           else 
+               count += request[i] - startPosition;
+           startPosition = request[i];
+       }
+       return count;
+   }
+   /* Elevator algorithm
+    * Moves in one ascending/descending direction, once reach the end of disk, 
+    * move the opposite direction
+    */
+   public int SCAN(int diskSize, int startPosition, int[] request) {
+	   int count, current = 0;
+	   
+	   for (int i = 0; i < request.length; i++) {
+		   if ( request[i] > current) 
+			   current = request[i];
+	   }
+	   
+	   if (current > startPosition) 
+		   count = startPosition + current;
+	   else 
+		   count = startPosition;
+  
+	   return count;
+   }
+   /* Moves in one ascending/descending direction, once reach the end of disk, 
+    * restart and moving in the same direction 
+    */
+   public int CScan(int diskSize, int startPosition, int[] request) {
+	   int count, current = 0;
+	   
+	   for (int i = 0 ; i < request.length; i++) {
+		   if ( request[i] < startPosition && request[i] > current) 
+			   current = request[i];
+	   }
+	   count = diskSize - startPosition + diskSize + current;
+	   return count;
+   }
+   /* Similar to SCAN
+    * Look for a request before continuing to move in a given direction 
+    */
+   public int Look(int diskSize, int startPosition, int[] request) {
+	   int count = 0, max = 0;
+	   int min = diskSize;
+	   for (int i = 0; i < request.length; i++) {
+		   if ( request[i] < min) 
+			   min = request[i];
+       
+		   if (request[i] > max) 
+			   max = request[i];
+	   }
+	   if (min < startPosition && startPosition < max) 
+		   count = (startPosition - min) + (max - min);
+	   else if (min > startPosition) 
+		   count = max - startPosition;
+       else if (max < startPosition) 
+       		count = startPosition - min;
+ 
+	   return count;
+   }
+   /* Similar to CSCAN
+    * Look for a request before continuing to move in a given direction 
+    */
+   public int CLook(int diskSize, int startPosition, int[] request) {
+	   int count, current = 0;
+	   int min = diskSize;
+	   int max = 0;
+  
+	   for (int i = 0; i < request.length; i++) {
+		   if ( request[i] < startPosition && request[i] > current) 
+			   current = request[i];
+		   if (request[i] < min) 
+			   min = request[i];
+		   if (request[i] > max) 
+			   max = request[i];
+	   }
+	   int total1 = max - startPosition;
+	   int total2 = current - min;
+	   count = total1 + max - min + total2;
+	   return count;
+   }
+   /* Shortest-Seek-Time-First Scheduling
+    * Create a new Queue to reorder the seek time from shortest to longest. 
+    * Then address the request in SSTF order. 
+    */
+   public int SSTF(int diskSize, int startPosition, int[] request) {
+       int count = 0;
+       //Create a queue of class node 
+       Node q[] = new Node[request.length];
+       for (int i = 0; i < q.length; i++)
+    	   q[i] = new Node();
+       
+       for ( int i = 0; i < request.length; i++) {
+    	   calculateDiff(request, startPosition, q);
+           int index = findMin(q);
+           q[index].accessed = true;
+           count += q[index].distance;
+           startPosition = request[index]; 
+       }
+       return count;
+   }
+   /* This method is made for the SSTF function usage
+    * Calculates difference of each track number with the head position
+    */
+   private void calculateDiff(int queue[], int head, Node diff[]){
+	   for (int i = 0; i < diff.length; i++)
+		   diff[i].distance = Math.abs(queue[i] - head);
+   }
+   /* This method is made for the SSTF function usage 
+    * Finds the minimum distance of which are not accessed track
+    */
+   private int findMin(Node diff[]){
+	   int index = - 1, minimum = Integer.MAX_VALUE;
+	   for (int i = 0; i < diff.length; i++) {
+		   if (!diff[i].accessed && minimum > diff[i].distance) {
+			   minimum = diff[i].distance;
+			   index = i;
+		   }
+	   }
+	   return index;
+   }
+}
+/* This node class is made for the SSTF function usage
+ * Holds the distance and access (boolean) variables*/
+class Node {
+	int distance = 0; //shows difference between head position and next track number
+	boolean accessed = false; //True, if track has been accessed 
+}
+
+//Resources:
+//Singh, S., Kumar, G., Kawalpreet, &amp; Sonu. (2020, September 25). Program for SSTF disk scheduling algorithm. Retrieved November 30, 2020, from https://www.geeksforgeeks.org/program-for-sstf-disk-scheduling-algorithm/
