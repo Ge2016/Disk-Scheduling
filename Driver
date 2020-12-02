@@ -1,0 +1,43 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
+
+public class Driver {
+   public static void main(String[] args) throws IOException {
+       int diskSize, startPosition, requests[];
+       Disk d = new Disk();
+  
+       BufferedReader readData = new BufferedReader(new FileReader("Data.txt"));
+       String line;
+       
+       for (int j = 1; j <= 2; j++) { //loops through a total of 2 sets per data file
+    	   System.out.println();
+    	   System.out.println("Set " + j + ": ");
+    	   
+    	   //read the first line = the total of cylinders for your disk. 
+    	   line = readData.readLine();
+	       diskSize = Integer.parseInt(line.trim()); 
+	       //read the second line = the starting cylinder number of the disk position 
+	       line = readData.readLine();
+	       startPosition = Integer.parseInt(line.trim());
+	       //read the third line = the data list of cylinders with I/O requests
+	       line = readData.readLine();
+	       String data[] = line.split(" ");
+	       
+	       requests = new int[data.length];
+	       for( int i = 0; i < data.length; i++) {
+	           requests[i] = Integer.parseInt(data[i].trim());
+	       }
+	       //printing 
+	       System.out.println("For FCFS, the total head movement was " + d.FCFS(diskSize, startPosition, requests) +" cylinders.");
+	       System.out.println("For SSTF, the total head movement was " + d.SSTF(diskSize, startPosition, requests) +" cylinders.");
+	       System.out.println("For SCAN, the total head movement was " + d.SCAN(diskSize, startPosition, requests) +" cylinders.");
+	       System.out.println("For C-SCAN, the total head movement was " + d.CScan(diskSize, startPosition, requests) +" cylinders.");
+	       System.out.println("For LOOK, the total head movement was " + d.Look(diskSize, startPosition, requests) +" cylinders.");
+	       System.out.println("For C-LOOK, the total head movement was " + d.CLook(diskSize, startPosition, requests) +" cylinders.");
+       }
+       readData.close();
+   }
+}
